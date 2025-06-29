@@ -1,66 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>CO Attainment Results</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        .header-text {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .chart-container {
-            margin: 30px auto;
-            max-width: 1000px;
-        }
-        .table-container {
-            max-width: 800px;
-            margin: 30px auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Course Outcome Attainment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+    h3, h4 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .text-muted {
+      font-size: 0.95rem;
+    }
+    table {
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <div class="container chart-container bg-white p-4 rounded shadow">
-        <div class="header-text">
-            <h3>Course Attainment – {{ subject }}</h3>
-            <p><strong>Faculty Coordinator:</strong> {{ faculty }} |
-               <strong>Academic Year:</strong> {{ academic_year }} |
-               <strong>Number of Students:</strong> {{ total_students }}</p>
-        </div>
+<div class="container bg-white p-4 rounded shadow">
+  <h3>Course Attainment – {{ subject }}</h3>
+  <p class="text-center">
+    <strong>Faculty Coordinator:</strong> {{ faculty }} |
+    <strong>Academic Year:</strong> {{ academic_year }} |
+    <strong>Number of Students:</strong> {{ total_students }}
+  </p>
+  <p class="text-center text-muted">
+    CO Attainment calculated as:
+    <strong>{{ theory_percent }}% Theory{% if practical_exists %} + {{ practical_percent }}% Practical{% endif %}</strong>
+  </p>
+  <div>
+    {{ chart_html|safe }}
+  </div>
+</div>
 
-        <!-- Embed Plotly chart -->
-        {{ chart_html|safe }}
-    </div>
+<div class="container bg-white p-4 rounded shadow">
+  <h4>Attainment Level Distribution</h4>
+  <table class="table table-bordered text-center table-striped">
+    <thead class="table-secondary">
+      <tr>
+        <th>Course Outcome</th>
+        <th>Level 3 (≥65%)</th>
+        <th>Level 2 (55–64%)</th>
+        <th>Level 1 (50–54%)</th>
+        <th>Level 0 (&lt;50%)</th>
+        <th>Total Students</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in attainment_table %}
+      <tr>
+        <td>{{ row["Course Outcome"] }}</td>
+        <td>{{ row["Level 3 (≥65%)"] }}</td>
+        <td>{{ row["Level 2 (55–64%)"] }}</td>
+        <td>{{ row["Level 1 (50–54%)"] }}</td>
+        <td>{{ row["Level 0 (<50%)"] }}</td>
+        <td>{{ row["Total Students"] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-    <div class="container table-container bg-white p-4 rounded shadow">
-        <h4 class="text-center mb-4">Attainment Level Summary</h4>
-        <table class="table table-bordered table-striped text-center">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Course Outcome</th>
-                    <th>Level 3 (≥75%)</th>
-                    <th>Level 2 (60–74%)</th>
-                    <th>Level 1 (<60%)</th>
-                    <th>Total Students</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in attainment_table %}
-                <tr>
-                    <td>{{ row["Course Outcome"] }}</td>
-                    <td>{{ row["Level 3 (≥75%)"] }}</td>
-                    <td>{{ row["Level 2 (60–74%)"] }}</td>
-                    <td>{{ row["Level 1 (<60%)"] }}</td>
-                    <td>{{ row["Total Students"] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary">Upload Another File</a>
-        </div>
-    </div>
+<div class="container bg-white p-4 rounded shadow">
+  <h4>Overall Attainment Level (CO-wise)</h4>
+  <table class="table table-bordered text-center">
+    <thead class="table-light">
+      <tr>
+        <th>Course Outcome</th>
+        <th>Attainment Level</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in attainment_levels %}
+      <tr>
+        <td>{{ row["CO"] }}</td>
+        <td>{{ row["Attainment Level"] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="container bg-white p-4 rounded shadow">
+  <h4>Gap Analysis (CO-wise Target vs Attained)</h4>
+  <table class="table table-bordered text-center">
+    <thead class="table-light">
+      <tr>
+        <th>Course Outcome</th>
+        <th>Target</th>
+        <th>Attained</th>
+        <th>Gap</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in gap_analysis_table %}
+      <tr>
+        <td>{{ row["CO"] }}</td>
+        <td>{{ row["Target"] }}</td>
+        <td>{{ "%.2f" | format(row["Attained"]) }}</td>
+        <td>{{ "%.2f" | format(row["Gap"]) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="container text-center mb-5">
+  <a href="/" class="btn btn-outline-primary mt-3">Upload Another File</a>
+</div>
 
 </body>
 </html>
